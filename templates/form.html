@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <title>Etusivu</title>
+  </head>
+
+  <body>
+    <h1>Etusivu</h1>
+    <p><b>Tervetuloa</b> <i>sovellukseen</i>!</p>
+
+    <form action="/result" method="post">
+      <p>Choose a pizza:</p>
+      <p>
+        <input type="radio" name="pizza" value="1" /> Frutti di Mare
+        <input type="radio" name="pizza" value="2" /> Margereit
+        <input type="radio" name="pizza" value="3" /> Quattro
+        <input type="radio" name="pizza" value="4" /> Sinko
+      </p>
+
+      <p>
+        <input type="checkbox" name="extra" value="A" /> oregano
+        <input type="checkbox" name="extra" value="B" /> valkosipuli
+      </p>
+      <p>
+        Erikoistoiveet: <br />
+        <textarea name="message" rows="3" cols="50"></textarea>
+      </p>
+      <input type="submit" value="Lähetä" />
+    </form>
+  </body>
+</html>

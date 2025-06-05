@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Etusivu</title>
+  </head>
+
+  <body>
+    <h1>Etusivu</h1>
+    <p><b>Tervetuloa</b> <i>sovellukseen</i>!</p>
+
+
+    <p> You chose: {{ pizza }} </p>
+
+    <p>
+        Toppings:
+        <ul>
+            {% for extra in extras %}
+            <li> {{ extra }} </li>
+            {% endfor %}
+        </ul>
+    </p>
+
+    <p>
+        Extra stuff: <br/>
+
+        {{ message }}
+
+    </p>
+
+
+  </body>
+</html>
