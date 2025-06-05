@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request
 
 app = Flask(__name__)
 
@@ -8,21 +8,34 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     db = sqlite3.connect("database.db")
-    db.execute("INSERT INTO visits (visited_at) VALUES (datetime('now'))")
-    db.commit()
-    result = db.execute("SELECT COUNT(*) FROM visits").fetchone()
-    count = result[0]
+    messages = db.execute("SELECT content FROM messages").fetchall()
+    count = len(messages)
     db.close()
-    message = "Page has been loaded " + str(count) + " times"
-    return render_template("index.html", message=message)
+    message = "Page has " + str(count) + " messages"
+    return render_template("index.html", message=message, messages=messages)
+
+
+@app.route("/new")
+def new():
+    return render_template("new.html")
+
+
+@app.route("/send", methods=["POST"])
+def send():
+    content = request.form["content"]
+    if len(content) > 0:
+        db = sqlite3.connect("database.db")
+        db.execute("INSERT INTO messages (content) VALUES (?)", [content])
+        db.commit()
+        db.close()
+        return redirect("/")
+    return redirect("/")
 
 
 @app.route("/result", methods=["POST"])
 def result():
-    message = request.form["message"]
-    extras = request.form.getlist("extra")
-    pizza = request.form["pizza"]
-    return render_template("result.html", message=message, extras=extras, pizza=pizza)
+    message = request.form["content"]
+    return render_template("result.html", message=message)
 
 
 @app.route("/form")

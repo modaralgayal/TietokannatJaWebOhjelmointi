@@ -3,8 +3,6 @@
   <head>
     <title>Etusivu</title>
   </head>
-
-  
     <h1>Etusivu</h1>
     <p><b>Tervetuloa</b> <i>sovellukseen</i>!</p>
 
@@ -14,14 +12,16 @@
     </nav>
 
     <p>{{ message }}</p>
-    <hr />
-    <ul>
-      {% for message in messages %}
-        <li>{{ message[0] }}</li>
-      {% endfor %}
-    </ul>
-    <hr />
 
+    <hr>
+    <p>
+      <ul>
+        {% for mes in messageList %}
+        <li> {{ mes }} </li>
+        {% endfor %}
+      </ul>
+    </p>
+    <hr/>
 
   </body>
 </html>

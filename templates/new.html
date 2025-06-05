@@ -13,15 +13,15 @@
       <a href="/new"><button>Send a new message</button></a>
     </nav>
 
-    <p>{{ message }}</p>
-    <hr />
-    <ul>
-      {% for message in messages %}
-        <li>{{ message[0] }}</li>
-      {% endfor %}
-    </ul>
-    <hr />
-
+    <form action="/send" method="post">
+        <p>
+            Message: <br />
+        <textarea name="content" rows="3" cols="40"></textarea>
+        </p>
+        <p>
+            <input type="submit" value="Send">
+        </p>
+    </form>
 
   </body>
 </html>
