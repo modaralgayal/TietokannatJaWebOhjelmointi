@@ -1,3 +1,5 @@
+import sqlite3
+
 from flask import Flask, render_template, request
 
 app = Flask(__name__)
@@ -5,8 +7,14 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    words = ["apina", "banaani", "cembalo"]
-    return render_template("index.html", message="Tervetuloa!", items=words)
+    db = sqlite3.connect("database.db")
+    db.execute("INSERT INTO visits (visited_at) VALUES (datetime('now'))")
+    db.commit()
+    result = db.execute("SELECT COUNT(*) FROM visits").fetchone()
+    count = result[0]
+    db.close()
+    message = "Page has been loaded " + str(count) + " times"
+    return render_template("index.html", message=message)
 
 
 @app.route("/result", methods=["POST"])
