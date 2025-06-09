@@ -1,28 +1,28 @@
-<!DOCTYPE html>
 <html>
   <head>
-    <title>Etusivu</title>
+    <title>Login</title>
   </head>
 
-  
-    <h1>Etusivu</h1>
-    <p><b>Tervetuloa</b> <i>sovellukseen</i>!</p>
+  <body>
+    {% if session.username %}
+    <p>You have signed in with the username {{ session.username }}</p>
 
-    <nav>
-      <a href="/form"><button>Form</button></a>
-      <a href="/new"><button>Send a new message</button></a>
-      <a href="/register"><button> Register a user </button></a>
-    </nav>
-
-    <p>{{ message }}</p>
-    <hr />
-    <ul>
-      {% for message in messages %}
-        <li>{{ message[0] }}</li>
-      {% endfor %}
-    </ul>
-    <hr />
-
-
+    <p>
+      <a href="/logout" method="post"> Sign out </a>
+    </p>
+    {% else %}
+    <a href="/register"> Register a user here </a>
+    <form action="/login" method="post">
+      <p>
+        Username: <br />
+        <input type="text" name="username" />
+      </p>
+      <p>
+        Password: <br />
+        <input type="password" name="password" />
+      </p>
+      <input type="submit" value="Kirjaudu" />
+    </form>
+    {% endif %}
   </body>
 </html>

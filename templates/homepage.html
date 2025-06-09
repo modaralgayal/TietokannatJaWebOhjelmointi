@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Etusivu</title>
+  </head>
+
+  
+    <h1>Homepage</h1>
+    <p><b>Welcome</b> <i>{{ session.username }}</i>!</p>
+
+    {% if session.username %}
+
+    <nav>
+      <a href="/form"><button>Form</button></a>
+      <a href="/new"><button>Send a new message</button></a>
+      <a href="/register"><button> Register a user </button></a>
+      <a href="/logout" method="post"><button>Sign out</button></a>
+    </nav>
+
+
+    <p>{{ message }}</p>
+    <hr />
+    <ul>
+      {% for message in messages %}
+        <li>{{ message[0] }}</li>
+      {% endfor %}
+    </ul>
+    <hr />
+    {% else %}
+    <p> You are not authorized, please sign in </p>
+    <a href="/"> Sign In </a>
+    {% endif %}
+
+  </body>
+</html>
