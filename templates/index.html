@@ -5,7 +5,9 @@
 
   <body>
     {% if session.user_id %}
-    <p>Welcome {{ session.username }}</p>
+    <p>
+      Welcome <a href="/user/{{session.user_id}}"> {{ session.username }} </a>
+    </p>
 
     <p>
       <a href="/logout" method="post"><button>Sign out</button> </a>
@@ -43,7 +45,9 @@
     <ul>
       {% for result in results %}
       <li>
-        <a href="/thread/{{ result.thread_id }}"> {{ result.thread_title }} </a>
+        <a href="/thread/{{ result.thread_id }}#{{ result.message_id }}">
+          {{ result.thread_title }}
+        </a>
         <br />
         {{ result.username }} ({{ result.sent_at }})
       </li>
@@ -53,7 +57,10 @@
     <p>
       <a href="/thread/{{ thread.id }}">{{ thread.title }}</a>
       <br />
-      {{ thread.total }} viestiä, uusin {{ thread.last }}
+      {{ thread.total }} viestiä, uusin {{ thread.last }} {% if session.user_id
+      == thread.user_id %}
+      <a href="/remove_thread/{{ thread.id }}">Delete</a>
+      {% endif %}
     </p>
     <hr />
     {% endfor %} {% else %}

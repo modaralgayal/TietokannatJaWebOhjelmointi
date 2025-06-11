@@ -1,18 +1,27 @@
 import datetime
+import sqlite3
 
 import db
 
 
-def get_threads():
-    sql_command = """
-        SELECT t.id, t.title, COUNT(m.id) AS total, MAX(m.sent_at) AS last
-        FROM threads t
-        LEFT JOIN messages m ON t.id = m.thread_id
-        GROUP BY t.id
-        ORDER BY t.id DESC
-    """
-    threads = db.query(sql_command)
-    return threads
+def get_threads(page, page_size):
+    sql = """SELECT t.id, t.title, COUNT(m.id) total, MAX(m.sent_at) last
+             FROM threads t, messages m
+             WHERE t.id = m.thread_id
+             GROUP BY t.id
+             ORDER BY t.id DESC
+             LIMIT ? OFFSET ?"""
+    limit = page_size
+    offset = page_size * (page - 1)
+    return db.query(sql, [limit, offset])
+
+
+
+def thread_count():
+    sql_command = "SELECT COUNT(*) FROM threads"
+    count = db.query(sql_command)
+    print(count[0][0])
+    return count[0][0]  # assuming count is a list of one tuple
 
 
 def create_thread(title, user_id):
@@ -50,7 +59,7 @@ def get_messages(thread_id):
 
 
 def get_message(message_id):
-    sql = "SELECT id, content, sent_at, thread_id FROM messages WHERE id = ?"
+    sql = "SELECT id, content, sent_at, user_id, thread_id FROM messages WHERE id = ?"
     message = db.query(sql, [message_id])[0]
     if message:
         return message
@@ -70,11 +79,13 @@ def remove_message(message_id):
 
 def remove_thread(thread_id):
     try:
-        print("Deleting thread: ", thread_id)
+        print("Deleting thread:", thread_id)
         sql = "DELETE FROM threads WHERE id = ?"
         db.execute(sql, [int(thread_id)])
-    except:
-        return "Cannot delete threads with messages in them", 401
+        return True
+    except sqlite3.IntegrityError as e:
+        print("Delete failed due to FK constraint:", e)
+        return False
 
 
 def search(query):

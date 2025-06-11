@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <title>User {{ user.username }}</title>
+  </head>
+
+  <body>
+    <h1>Hello {{ user.username }}</h1>
+
+    <nav>
+      <a href="/"><button>Home</button></a>
+      <a href="/add_image"><button>Add Image</button></a>
+    </nav>
+
+    {% if user.has_image %}
+    <img src="/image/{{ user.id }}" />
+    {% endif %}
+
+    <p>User has sent {{ messages | count }} messages</p>
+
+    {% if messages %}
+    <p>First message sent at {{ messages[-1].sent_at }}</p>
+    <p>Last message sent at {{ messages[0].sent_at }}</p>
+
+    <ul>
+      {% for message in messages %}
+      <li>
+        <a href="/thread/{{ message.thread_id }}#{{ message.id }}">
+          {{ message.thread_title }}
+        </a>
+        <br />
+        ({{ message.sent_at }})
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </body>
+</html>

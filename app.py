@@ -1,12 +1,14 @@
+import math
 import sqlite3
 from os import abort
 
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, make_response, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import config
 import db
 import forum
+import users
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -18,9 +20,55 @@ def require_login():
 
 
 @app.route("/")
-def index():
-    threads = forum.get_threads()
-    return render_template("index.html", threads=threads)
+@app.route("/<int:page>")
+def index(page=1):
+    page_size = 10
+    thread_count = forum.thread_count()
+    page_count = math.ceil(thread_count / page_size)
+    page_count = max(page_count, 1)
+
+    if page < 1:
+        return redirect("/1")
+    if page > page_count:
+        return redirect("/" + str(page_count))
+
+    threads = forum.get_threads(page, page_size)
+    return render_template(
+        "index.html", page=page, page_count=page_count, threads=threads
+    )
+
+
+@app.route("/add_image", methods=["GET", "POST"])
+def add_image():
+    require_login()
+
+    if request.method == "GET":
+        return render_template("add_image.html")
+
+    if request.method == "POST":
+        file = request.files["image"]
+        if not file.filename.endswith(".jpg"):
+            return "VIRHE: väärä tiedostomuoto"
+
+        image = file.read()
+        if len(image) > 100 * 1024:
+            return "ERROR: Image is too large"
+
+        user_id = session["user_id"]
+        users.update_image(user_id, image)
+        return redirect("/user/" + str(user_id))
+
+
+@app.route("/image/<int:user_id>")
+def show_image(user_id):
+    require_login()
+    image = users.get_image(user_id)
+    if not image:
+        abort(404)
+
+    response = make_response(bytes(image))
+    response.headers.set("Content-Type", "image/jpeg")
+    return response
 
 
 @app.route("/search")
@@ -32,6 +80,7 @@ def search():
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
+    require_login()
     user = users.get_user(user_id)
     if not user:
         abort(404)
@@ -41,7 +90,11 @@ def show_user(user_id):
 
 @app.route("/edit/<int:message_id>", methods=["GET", "POST"])
 def edit_message(message_id):
+    require_login()
     message = forum.get_message(message_id)
+    print(message["id"])
+    print(message["user_id"])
+    print(session["user_id"])
     if message["user_id"] != session["user_id"]:
         abort(403)
     if request.method == "GET":
@@ -55,6 +108,7 @@ def edit_message(message_id):
 
 @app.route("/remove/<int:message_id>", methods=["GET", "POST"])
 def remove_message(message_id):
+    require_login()
     item = forum.get_message(message_id)
     if not item:
         abort(404)
@@ -71,6 +125,7 @@ def remove_message(message_id):
 
 @app.route("/remove_thread/<int:thread_id>", methods=["GET", "POST"])
 def remove_thread(thread_id):
+    require_login()
     item = forum.get_thread(thread_id)
     type = "thread"
 
@@ -78,11 +133,13 @@ def remove_thread(thread_id):
         return render_template("remove.html", item=item, type=type)
 
     if request.method == "POST":
+        if "cancel" in request.form:
+            return redirect("/")
         if "continue" in request.form:
-            try:
-                forum.remove_thread(thread_id)
-            except:
-                "Cannot delete threads with messages in them", 401
+            success = forum.remove_thread(thread_id)
+            if not success:
+                print("Cannot delete thread — likely has messages")
+                return "Cannot delete thread — likely has messages", 400
         return redirect("/")
 
 
