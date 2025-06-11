@@ -4,14 +4,61 @@
   </head>
 
   <body>
-    {% if session.username %}
-    <p>You have signed in with the username {{ session.username }}</p>
+    {% if session.user_id %}
+    <p>Welcome {{ session.username }}</p>
 
     <p>
-      <a href="/logout" method="post"> Sign out </a>
+      <a href="/logout" method="post"><button>Sign out</button> </a>
     </p>
-    {% else %}
-    <a href="/register"> Register a user </a>
+
+    <h2>New Thread</h2>
+
+    <form action="/new_thread" method="post">
+      <p>
+        Title: <br />
+        <input type="text" name="title" maxlength="100" required />
+      </p>
+      <p>
+        Message: <br />
+        <textarea name="content" rows="5" cols="40" maxlength="500"></textarea>
+      </p>
+      <input type="submit" value="Lähetä" />
+    </form>
+
+    <form action="/search" method="get">
+      <p>
+        Search: {% if query %}
+        <input type="text" name="query" value="{{ query }}" />
+        {% else %}
+        <input type="text" name="query" />
+        {% endif %}
+      </p>
+      <input type="submit" value="Search" />
+    </form>
+
+    {% if query %}
+    <hr />
+    <h2>Results</h2>
+
+    <ul>
+      {% for result in results %}
+      <li>
+        <a href="/thread/{{ result.thread_id }}"> {{ result.thread_title }} </a>
+        <br />
+        {{ result.username }} ({{ result.sent_at }})
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% for thread in threads %}
+    <p>
+      <a href="/thread/{{ thread.id }}">{{ thread.title }}</a>
+      <br />
+      {{ thread.total }} viestiä, uusin {{ thread.last }}
+    </p>
+    <hr />
+    {% endfor %} {% else %}
+    <p>Welcome Guest User</p>
+    <a href="/register"><button>Register a user</button> </a>
     <form action="/login" method="post">
       <p>
         Username: <br />
@@ -21,7 +68,7 @@
         Password: <br />
         <input type="password" name="password" />
       </p>
-      <input type="submit" value="Kirjaudu" />
+      <input type="submit" value="Sign in" />
     </form>
     {% endif %}
   </body>
